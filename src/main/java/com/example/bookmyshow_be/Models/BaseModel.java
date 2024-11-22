@@ -14,10 +14,6 @@ import java.util.Date;
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class) //Enables auditing on the entity
 public class BaseModel {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @CreatedDate
     @Column(updatable = false, nullable = false)
     private Date createdAt;

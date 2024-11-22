@@ -1,4 +1,26 @@
 package com.example.bookmyshow_be.Models;
 
-public class User {
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@Entity
+public class User extends BaseModel{
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long userId;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(unique = true)
+    private String email;
+
+    @Column(unique = true)
+    private Long mobileNumber;
+
+    @Column(nullable = false)
+    private String password;
 }
