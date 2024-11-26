@@ -1,4 +1,4 @@
-package com.example.bookmyshow_be.DTOs;
+package com.example.bookmyshow_be.DTOs.UserDTOs;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -6,6 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserLoginRequestDTO {
-    private String username;
+    private String email;
     private String password;
 }

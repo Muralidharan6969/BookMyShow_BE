@@ -10,6 +10,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.function.Function;
 
@@ -21,12 +22,26 @@ public class JWTUtils {
     private String jwtExpirationInMs;
 
     public String generateUserToken(UserTokenPayload payload){
+        long expirationInMs = Long.parseLong(jwtExpirationInMs);
+
+        // Calculate expiration time using java.time.Instant
+        Instant expirationInstant = Instant.now().plusMillis(expirationInMs);
+        Date expirationDate = Date.from(expirationInstant); // Convert to Date object
+
+        System.out.println("User ID: " + payload.getUserId());
+        System.out.println("Name: " + payload.getName());
+        System.out.println("Role: " + payload.getRole());
+        System.out.println("Expiration in ms: " + jwtExpirationInMs);
+        System.out.println("Issued At: " + new Date());
+        System.out.println("Current Time: " + System.currentTimeMillis());
+        System.out.println("Expiration At: " + expirationDate);
+
         return Jwts.builder()
                 .setSubject(payload.getUserId().toString())
                 .claim("name", payload.getName())
                 .claim("role", payload.getRole())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationInMs))
+                .setExpiration(expirationDate)
                 .signWith(SignatureAlgorithm.HS512, secretKey)
                 .compact();
     }

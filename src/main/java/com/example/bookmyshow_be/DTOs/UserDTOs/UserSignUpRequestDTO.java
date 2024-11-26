@@ -1,4 +1,4 @@
-package com.example.bookmyshow_be.DTOs;
+package com.example.bookmyshow_be.DTOs.UserDTOs;
 
 import com.example.bookmyshow_be.Models.User;
 import lombok.Getter;

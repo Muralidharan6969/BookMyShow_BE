@@ -14,12 +14,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-@Component
 public class OutletTokenValidationFilter extends OncePerRequestFilter {
     private OutletService outletService;
     private JWTUtils jwtUtils;
 
-    @Autowired
     public OutletTokenValidationFilter(JWTUtils jwtUtils, OutletService outletService){
         this.jwtUtils = jwtUtils;
         this.outletService = outletService;
@@ -27,6 +25,21 @@ public class OutletTokenValidationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        String path = request.getRequestURI();
+        System.out.println("path - " + path);
+        if (!path.startsWith("/outlet/")) {
+            System.out.println("Skipping token validation for non-outlet paths");
+            filterChain.doFilter(request, response); // Skip processing for non-outlet paths
+            return;
+        }
+
+        if (path.contains("/register") || path.contains("/login")) {
+            System.out.println("Skipping token validation for outlet registration");
+            filterChain.doFilter(request, response); // Skip token validation for outlet register
+            return;
+        }
+        System.out.println("Not skipping token validation for outlet registration");
+
         String token = request.getHeader("bms-outlet-token");
         if (token != null){
             try {

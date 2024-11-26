@@ -1,5 +1,10 @@
 package com.example.bookmyshow_be.Security;
 
+import com.example.bookmyshow_be.Services.AdminService;
+import com.example.bookmyshow_be.Services.OutletService;
+import com.example.bookmyshow_be.Services.UserService;
+import com.example.bookmyshow_be.Utils.JWTUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,43 +15,80 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
+    private final JWTUtils jwtUtils;
+    private final UserService userService;
+    private final OutletService outletService;
+    private final AdminService adminService;
+
+    @Autowired
+    public SecurityConfiguration(JWTUtils jwtUtils, UserService userService, OutletService outletService, AdminService adminService) {
+        this.jwtUtils = jwtUtils;
+        this.userService = userService;
+        this.outletService = outletService;
+        this.adminService = adminService;
+    }
+
+    // Main Security Filter Chain for fallback routes
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .csrf().disable()
+                .cors().disable()
+                .authorizeRequests()
+                .anyRequest().permitAll()
+                .and()
+                .build();
+    }
+
+    // Security Filter Chain for User-specific routes
     @Bean
     public SecurityFilterChain userSecurityFilterChain
-            (HttpSecurity http, UserTokenValidationFilter userTokenValidationFilter) throws Exception{
+            (HttpSecurity http) throws Exception{
+        UserTokenValidationFilter userTokenValidationFilter =
+                new UserTokenValidationFilter(jwtUtils, userService);
         return http
-                .securityMatcher("/user/**")
+                .securityMatcher("/users/**")
                 .csrf().disable()
-                .authorizeHttpRequests()
-                    .requestMatchers("/user/login", "/user/signup").permitAll()
-                    .anyRequest().authenticated()
+                .cors().disable()
+                .authorizeRequests()
+                .requestMatchers("/users/login", "/users/signup").permitAll()
+                .anyRequest().permitAll()
                 .and()
                 .addFilterBefore(userTokenValidationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
+    // Security Filter Chain for Outlet-specific routes
     @Bean
     public SecurityFilterChain outletSecurityFilterChain
-            (HttpSecurity http, OutletTokenValidationFilter outletTokenValidationFilter) throws Exception {
+            (HttpSecurity http) throws Exception {
+        OutletTokenValidationFilter outletTokenValidationFilter =
+                new OutletTokenValidationFilter(jwtUtils, outletService);
         return http
                 .securityMatcher("/outlet/**")
                 .csrf().disable()
-                .authorizeHttpRequests()
-                .requestMatchers("/outlet/login", "/outlet/signup").permitAll()
-                .anyRequest().authenticated()
+                .cors().disable()
+                .authorizeRequests()
+                .requestMatchers("/outlet/login", "/outlet/register").permitAll()
+                .anyRequest().permitAll()
                 .and()
                 .addFilterBefore(outletTokenValidationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
+    // Security Filter Chain for Admin-specific routes
     @Bean
     public SecurityFilterChain adminSecurityFilterChain
-            (HttpSecurity http, AdminTokenValidationFilter adminTokenValidationFilter) throws Exception {
+            (HttpSecurity http) throws Exception {
+        AdminTokenValidationFilter adminTokenValidationFilter =
+                new AdminTokenValidationFilter(jwtUtils, adminService);
         return http
                 .securityMatcher("/admin/**")
                 .csrf().disable()
-                .authorizeHttpRequests()
-                .requestMatchers("/admin/login", "/admin/signup").permitAll()
-                .anyRequest().authenticated()
+                .cors().disable()
+                .authorizeRequests()
+                .requestMatchers("/admin/login", "/admin/register").permitAll()
+                .anyRequest().permitAll()
                 .and()
                 .addFilterBefore(adminTokenValidationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

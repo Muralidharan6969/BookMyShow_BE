@@ -14,12 +14,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-@Component
 public class UserTokenValidationFilter extends OncePerRequestFilter {
     private UserService userService;
     private JWTUtils jwtUtils;
 
-    @Autowired
     public UserTokenValidationFilter(JWTUtils jwtUtils, UserService userService){
         this.jwtUtils = jwtUtils;
         this.userService = userService;
@@ -27,6 +25,22 @@ public class UserTokenValidationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        String path = request.getRequestURI();
+        System.out.println("path - " + path);
+        if (!path.startsWith("/users/")) {
+            System.out.println("Skipping token validation for non-user paths");
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if (path.contains("/signup") || path.contains("/login")) {
+            System.out.println("Skipping token validation for user signup");
+            filterChain.doFilter(request, response); // Skip token validation for user signup
+            return;
+        }
+
+        System.out.println("Not skipping token validation for user signup");
+
         String token = request.getHeader("bms-user-token");
         if (token != null){
             try {

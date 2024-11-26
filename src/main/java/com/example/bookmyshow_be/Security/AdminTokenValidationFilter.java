@@ -16,12 +16,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-@Component
 public class AdminTokenValidationFilter extends OncePerRequestFilter {
     private AdminService adminService;
     private JWTUtils jwtUtils;
 
-    @Autowired
     public AdminTokenValidationFilter(JWTUtils jwtUtils, AdminService adminService){
         this.jwtUtils = jwtUtils;
         this.adminService = adminService;
@@ -29,6 +27,21 @@ public class AdminTokenValidationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        String path = request.getRequestURI();
+        System.out.println("path - " + path);
+        if (!path.startsWith("/admin/")) {
+            System.out.println("Skipping token validation for non-admin paths");
+            filterChain.doFilter(request, response); // Skip processing for non-admin paths
+            return;
+        }
+
+        if (path.contains("/register") || path.contains("/login")) {
+            System.out.println("Skipping token validation for admin registration");
+            filterChain.doFilter(request, response); // Skip token validation for admin registration
+            return;
+        }
+        System.out.println("Not skipping token validation for admin registration");
+
         String token = request.getHeader("bms-admin-token");
         if (token != null){
             try {
