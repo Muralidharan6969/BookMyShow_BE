@@ -47,23 +47,35 @@ public class JWTUtils {
     }
 
     public String generateOutletToken(OutletTokenPayload payload){
+        long expirationInMs = Long.parseLong(jwtExpirationInMs);
+
+        // Calculate expiration time using java.time.Instant
+        Instant expirationInstant = Instant.now().plusMillis(expirationInMs);
+        Date expirationDate = Date.from(expirationInstant); // Convert to Date object
+
         return Jwts.builder()
                 .setSubject(payload.getOutletId().toString())
                 .claim("outletName", payload.getOutletOwnershipName())
                 .claim("role", payload.getRole())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationInMs))
+                .setExpiration(expirationDate)
                 .signWith(SignatureAlgorithm.HS512, secretKey)
                 .compact();
     }
 
     public String generateAdminToken(AdminTokenPayload payload){
+        long expirationInMs = Long.parseLong(jwtExpirationInMs);
+
+        // Calculate expiration time using java.time.Instant
+        Instant expirationInstant = Instant.now().plusMillis(expirationInMs);
+        Date expirationDate = Date.from(expirationInstant); // Convert to Date object
+
         return Jwts.builder()
                 .setSubject(payload.getAdminId().toString())
                 .claim("registrationId", payload.getRegistrationId())
                 .claim("role", payload.getRole())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationInMs))
+                .setExpiration(expirationDate)
                 .signWith(SignatureAlgorithm.HS512, secretKey)
                 .compact();
     }
@@ -80,6 +92,10 @@ public class JWTUtils {
     // Specific Method: Extract User ID
     public String extractEntityId(String token) {
         return getClaimFromToken(token, Claims::getSubject);
+    }
+
+    public String extractEntityRole(String token) {
+        return getClaimFromToken(token, claims -> claims.get("role", String.class));
     }
 
     // Specific Method: Validate Token

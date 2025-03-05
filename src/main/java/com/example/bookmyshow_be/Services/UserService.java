@@ -1,5 +1,8 @@
 package com.example.bookmyshow_be.Services;
 
+import com.example.bookmyshow_be.DTOs.UserDTOs.UserLoginResponseDTO;
+import com.example.bookmyshow_be.Exceptions.DuplicateEmailException;
+import com.example.bookmyshow_be.Exceptions.PasswordIncorrectException;
 import com.example.bookmyshow_be.Exceptions.UserNotFoundException;
 import com.example.bookmyshow_be.Models.User;
 import com.example.bookmyshow_be.Models.UserTokenPayload;
@@ -26,24 +29,33 @@ public class UserService {
     }
 
     public User userSignUp(User user){
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new DuplicateEmailException("Email already exists: " + user.getEmail());
+        }
+
+        if (userRepository.findByMobileNumber(user.getMobileNumber()).isPresent()) {
+            throw new DuplicateEmailException("Mobile No already exists: " + user.getMobileNumber());
+        }
+
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
-    public String userLogin(String email, String password) throws UserNotFoundException {
+    public UserLoginResponseDTO userLogin(String email, String password) throws UserNotFoundException {
         Optional<User> userOptional = userRepository.findByEmail(email);
         if(userOptional.isEmpty()){
             throw new UserNotFoundException("User not found");
         }
 
         if(!bCryptPasswordEncoder.matches(password, userOptional.get().getPassword())){
-            throw new RuntimeException("Password is incorrect");
+            throw new PasswordIncorrectException("Password is incorrect");
         }
 
         User user = userOptional.get();
-
-        return jwtUtils.generateUserToken(new UserTokenPayload(user.getUserId(),
+        String token = jwtUtils.generateUserToken(new UserTokenPayload(user.getUserId(),
                 user.getName(), RoleEnums.USER.toString()));
+
+        return UserLoginResponseDTO.convertUserToDTO(token, user.getUserId(), user.getName(), user.getEmail(), user.getMobileNumber());
     }
 
     public User getUserByUserId(Long userId){
