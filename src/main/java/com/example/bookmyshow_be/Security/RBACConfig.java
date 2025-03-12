@@ -44,15 +44,9 @@ public class RBACConfig {
 
     public boolean hasAccess(String userType, String path, String method) {
         List<EndpointRule> allowedRules = getAllowedRules(userType);
-        System.out.println("Request Path: " + path);
-        System.out.println("Request Method: " + method);
-        System.out.println("User Type: " + userType);
-        System.out.println("Allowed Rules: " + allowedRules);
 
         for (EndpointRule rule : allowedRules) {
-            System.out.println("Checking rule: " + rule);
             if (rule.matches(path, method)) {
-                System.out.println("Matched rule: " + rule);
                 return true;
             }
         }

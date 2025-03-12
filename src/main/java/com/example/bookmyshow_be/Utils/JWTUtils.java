@@ -28,14 +28,6 @@ public class JWTUtils {
         Instant expirationInstant = Instant.now().plusMillis(expirationInMs);
         Date expirationDate = Date.from(expirationInstant); // Convert to Date object
 
-        System.out.println("User ID: " + payload.getUserId());
-        System.out.println("Name: " + payload.getName());
-        System.out.println("Role: " + payload.getRole());
-        System.out.println("Expiration in ms: " + jwtExpirationInMs);
-        System.out.println("Issued At: " + new Date());
-        System.out.println("Current Time: " + System.currentTimeMillis());
-        System.out.println("Expiration At: " + expirationDate);
-
         return Jwts.builder()
                 .setSubject(payload.getUserId().toString())
                 .claim("name", payload.getName())

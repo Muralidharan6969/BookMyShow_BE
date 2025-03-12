@@ -127,7 +127,7 @@ public class MovieService {
 
     @Transactional(readOnly = true)
     public ListMoviesDTO fetchAllPopularMovies(){
-        List<String> movieNames = Arrays.asList("Thani Oruvan", "LEO", "Dragon", "Interstellar");
+        List<String> movieNames = Arrays.asList("Thani Oruvan", "LEO", "Dragon", "Interstellar", "Dada");
         List<Movie> movies = movieRepository.findByMovieNameIn(movieNames);
         return new ListMoviesDTO(
                 null,
