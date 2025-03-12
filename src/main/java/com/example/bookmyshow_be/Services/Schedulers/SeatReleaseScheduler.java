@@ -16,7 +16,7 @@ public class SeatReleaseScheduler {
     @Autowired
     private ShowSeatMappingRepository showSeatMappingRepository;
 
-    @Scheduled(fixedRate = 60000) // Run every minute
+    @Scheduled(fixedRate = 300000) // Run every 5 minutes
     public void releaseBlockedSeats() {
         LocalDateTime timeoutTime = LocalDateTime.now().minusMinutes(10); // 10 minutes ago
         List<ShowSeatMapping> blockedSeats = showSeatMappingRepository
