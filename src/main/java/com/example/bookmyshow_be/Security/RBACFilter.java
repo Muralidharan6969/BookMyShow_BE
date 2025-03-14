@@ -44,7 +44,7 @@ public class RBACFilter extends OncePerRequestFilter {
     }
 
     private boolean isAuthenticationEndpoint(String path) {
-        return path.contains("/login") || path.contains("/register") || path.contains("/signup");
+        return path.contains("/login") || path.contains("/register") || path.contains("/signup") || path.contains("/health");
     }
 
     private boolean isAuthorized(String userType, String path, String method) {
